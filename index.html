@@ -1,0 +1,393 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Shower Presentation Engine</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<link rel="stylesheet" href="shower/themes/ribbon/styles/screen.css">
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>QGIS server vs. QGIS server</h1>
+		<p>Stefan Ziegler&mdash;Amt für Geoinformation Kanton Solothurn</p>
+	</header>
+	<section class="slide cover" id="Cover"><div>
+		<h2>QGIS Server vs. QGIS Server</h2>
+		<p>QGIS server benchmarking<br>Stefan Ziegler&mdash;Amt für Geoinformation Kanton Solothurn</p>
+		<img src="pictures/cover.jpg" alt="">
+		<!--
+			To apply styles to the certain slides
+			set slide ID to get needed elements
+			-->
+		<style>
+			#Cover h2 {
+				margin:30px 0 0;
+				color:#FFF;
+				text-align:center;
+				font-size:70px;
+				}
+			#Cover p {
+				margin:10px 0 0;
+				text-align:center;
+				color:#FFF;
+				font-style:italic;
+				font-size:20px;
+				}
+				#Cover p a {
+					color:#FFF;
+				}
+		</style>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Motivation</h2>
+		<ul>
+			<li>QGIS Server ist schnell: <a href="http://sourcepole.ch/assets/2013/6/17/fossgis_2013_performanceoptimierte_wms_dienste.pdf">Präsentation FOSSGIS 2013</a></li>
+			<li><b>Verdacht:</b> Performance geringer, falls Layer kaskadiert werden.</li>
+			<li>Kennenlernen von Apache JMeter</li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Apache JMeter</h2>
+		<ul>
+			<li>Java-Programm zum Ausführen von Lasttests.</li>
+			<li>Simulation von parallelen Anfragen, um Skalierbarkeit zu testen.</li>
+			<li>Verwendet für WMS-Shootouts an der FOSS4G.</li>
+			<li>Werte für GET-Parameter (z.B. <i>BBOX</i>, <i>WIDTH</i> und <i>HEIGHT</i>) können aus CSV-Datei mit zuvor erzeugten zufälligen Werten entnommen werden.</li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Kaskadieren?</h2>
+		<ul>
+			<li>Häufig benutzte Grundlagen- resp. Hintergrundkarten werden <strong>einmalig</strong> erstellt und über <strong>eine</strong> Schnittstelle (WMS) zur Verfügung gestellt.</li>
+			<li>Orthofoto / Basisplan / AV-WMS / Grundbuchplan</li>
+			<li>Praktisch, falls Grundlagenkarte aus vielen einzelnen Layern/Datensätzen besteht.</li>
+			<li>Einbinden der Grundlagenkarten-WMS-Layer in QGIS-Webclient.</li>
+		</ul>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Testbedingungen</h2>
+		<ul>
+			<li>Hetzner-Server:</li>
+			<ul>
+				<li>Intel i7-3770 (4 Cores, 8 Threads, 3.4 - 3.9 GHz)</li>
+				<li>16 GB RAM</li>
+				<li>2 x 3 TB HDD (7200 rpm, Software-RAID 1)</li>
+			</ul>
+			<li>Ubuntu 10.04</li>
+			<li>PostgreSQL 8.4 / Postgis 2.0</li>
+			<li>QGIS enterprise 13.03b</li>
+			<li>JMeter, Datenbank und QGIS auf dem gleichen Server</li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>fcgid.conf</h2>
+		<pre style="font-size:50%;">
+			<code style="line-height:20px;">&lt;IfModule mod_fcgid.c&gt;</code>
+			<code style="line-height:20px;">  AddHandler fcgid-script .fcgi</code>
+			<code style="line-height:20px;">  FcgidConnectTimeout 600</code>
+			<code style="line-height:20px;">  FcgidIdleTimeout 0</code>
+			<code style="line-height:20px;">  FcgidMaxRequestLen 134217728</code>
+			<code style="line-height:20px;">  FcgidMaxProcesses <mark class="important">50</mark></code>
+			<code style="line-height:20px;">  FcgidMinProcessesPerClass 0</code>
+			<code style="line-height:20px;">  FcgidMaxProcessesPerClass 20</code>
+			<code style="line-height:20px;">  SocketPath /var/lib/apache2/fcgid/sock</code>
+			<code style="line-height:20px;">  IPCConnectTimeout 8</code>
+			<code style="line-height:20px;">  ProcessLifeTime 7200</code>	
+			<code style="line-height:20px;">  IPCCommTimeout  7200</code>
+			<code style="line-height:20px;">  IPCConnectTimeout 300</code>	
+			<code style="line-height:20px;">  FcgidInitialEnv LD_LIBRARY_PATH /usr/local/qgis/qgis_enterprise/lib</code>
+			<code style="line-height:20px;">  FcgidInitialEnv DISPLAY :99</code>	
+			<code style="line-height:20px;">  FcgidInitialEnv LANG=de_CH.UTF-8</code>																
+			<code style="line-height:20px;">&lt;/IfModule&gt;</code>
+		</pre>
+	</div></section>
+	
+	<!-- 
+	<section class="slide"><div>
+		<h2>Eichung</h2>
+		<ul>
+			<li>Vergleich mit Resultaten von Sourcepole (FOSSGIS 2013)</li>
+			<li>AV-WMS: zufällige Ausschnitte 1:800 - 1:5'000</li>
+			<li>Ausgabeformat: png8</li>
+		</ul>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Eichung</h2>
+		<table>
+		<tr>
+			<th scope="col">N Requests</th>
+			<th>Sourcepole (Req/s)</th>
+			<th>Hetzner (Req/s)</th>
+		</tr>
+		<tr>
+			<th scope="row">1</th>
+			<td>7.7</td>
+			<td>6.3</td>
+		</tr>
+		<tr>
+			<th scope="row">2</th>
+			<td>16.4</td>
+			<td>14.0</td>
+		</tr>
+		<tr>
+			<th scope="row">4</th>
+			<td>27.4</td>
+			<td>23.7</td>
+		</tr>
+		<tr>
+			<th scope="row">8</th>
+			<td>26.7</td>
+			<td>30.5</td>
+		</tr>
+		<tr>
+			<th scope="row">16</th>
+			<td>25.0</td>
+			<td>33.7</td>
+		</tr>
+		<tr>
+			<th scope="row">32</th>
+			<td>29.7</td>
+			<td>35.4</td>
+		</tr>
+		<tr>
+			<th scope="row">64</th>
+			<td>27.1</td>
+			<td>35.6</td>
+		</tr>						
+		</table>	
+	</div></section>
+-->
+
+	<section class="slide"><div>
+		<h2>Benchmark</h2>
+		<ul>
+			<li>Zufällige <i>BBOX-</i>, <i>WIDTH-</i> und <i>HEIGHT-</i>Werte erzeugt mit <code>wms_request.py -count 1000 -region 590000 210000 650000 270000 -maxres 20 -minres 0.01 -maxsize 1920 1080 -minsize 500 300 -srs 21781 -filter_within ../data/geo_gemeinden_v.shp</code></li>
+			<li><strong>Achtung:</strong> Original-Skript (Zeile 213) verlangt, dass BBOX <em>komplett innerhalb</em> des Datensatz liegen. &rarr; neu <em>Intersects</em> statt <em>Contains</em></li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Benchmark</h2>
+		<ul>
+			<li>Drei Ansätze = drei QGIS-Projekte = drei WMS-Dienste:</li>
+			<ol>
+				<li><em>direkt:</em> Layer werden in QGIS direkt geladen, z.B. VRT-Layer für Orthofotos, Postgis für Vektordaten.</li>
+				<li><em>embedded:</em> Layer werden via QGIS-Projekt (1) geladen (&laquo;Embed Layers and Groups...&raquo;).</li>
+				<li><em>wms:</em> Layer wird von (1) als WMS in QGIS-Projekt geladen (= Kaskadieren).</li>
+			</ol>
+		</ul>
+	</div></section>	
+
+	<section class="slide"><div>
+		<h2>Benchmark</h2>
+		<ul>
+			<li>Beispiele:</li>
+			<ol>
+				<li><a href="http://www.catais.org/wms/orthofoto_direkt?SERICE=WMS&REQUEST=GetCapabilities">http://www.catais.org/wms/orthofoto_direkt</a></li>
+				<li><a href="http://www.catais.org/wms/orthofoto_embedded?SERICE=WMS&REQUEST=GetCapabilities">http://www.catais.org/wms/orthofoto_embedded</a></li>
+				<li><a href="http://www.catais.org/wms/orthofoto_wms?SERICE=WMS&REQUEST=GetCapabilities">http://www.catais.org/wms/orthofoto_wms</a></li>
+			</ol>
+		</ul>
+	</div></section>	
+
+	<section class="slide"><div>
+		<h2>Benchmark</h2>
+		<ul>
+			<li>Tests mit:</li>
+			<ol>
+				<li>AV-WMS</li>
+				<li>Plan für das Grundbuch</li>
+				<li>Basisplan</li>
+				<li>Orthofoto</li>
+				<li>Kombination (Orthofoto und Basisplan/Plan für das Grundbuch)</li>
+			</ol>
+			<li>Jeweils <em>drei</em> Durchgänge &rarr; mittlerer Wert verwendet.</li>
+			<li>Ausgabeformat: 24bit PNG</li>
+		</ul>
+	</div></section>	
+
+	<section class="slide cover" id="avwms"><div>
+		<h2 style="color:#FFF;">AV-WMS</h2>
+		<img src="pictures/avwms.png" alt="">
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>AV-WMS</h2>
+		<ul>
+			<li>AV-WMS farbig</li>			
+			<li>23 Vektorlayer</li>
+			<li>Datenhaltung in PostgreSQL/Postgis-Datenbank</li>
+			<li>Datendefinierte Beschriftung</li>			
+			<li>Labelbuffer grosszügig verwendet</li>
+			<li>Wenig gestrichelte Linien/Umrandungen</li>
+		</ul>
+	</div></section>
+
+	<section class="slide" id="avwms_bench"><div>
+		<img style="margin-top: -80px;" src="pictures/avwms_bench.png" alt="">
+	</div></section>
+
+	<section class="slide shout"><div>
+		<h2>Upsi?!</h2>
+	</div></section>
+
+	<section class="slide" id="avwms_bench_resp"><div>
+		<img style="margin-top: -80px;" src="pictures/avwms_bench_resp.png" alt="">
+	</div></section>
+
+	<section class="slide cover" id="grundbuchplan"><div>
+		<h2 style="color:#000;">Plan für das Grundbuch</h2>
+		<img src="pictures/grundbuchplan.png" alt="">
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Plan für das Grundbuch</h2>
+		<ul>
+			<li>circa 70 Vektorlayer (massstabsabhängig)</li>
+			<li>Datenhaltung in PostgreSQL/Postgis-Datenbank</li>
+			<li>Datendefinierte Beschriftung</li>			
+			<li>Labelbuffer grosszügig verwendet</li>
+			<li>Gestrichelte Linien/Umrandungen</li>
+		</ul>
+	</div></section>
+
+	<section class="slide" id="grundbuchplan_bench"><div>
+		<img style="margin-top: -80px;" src="pictures/grundbuchplan_bench.png" alt="">
+	</div></section>
+
+	<section class="slide" id="grundbuchplan_bench_resp"><div>
+		<img style="margin-top: -80px;" src="pictures/grundbuchplan_bench_resp.png" alt="">
+	</div></section>
+
+	<section class="slide cover" id="basisplan"><div>
+		<h2 style="color:#000;">Basisplan</h2>
+		<img src="pictures/basisplan.png" alt="">
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Basisplan</h2>
+		<ul>
+			<li>schwarz-weiss</li>
+			<li>38 GeoTIFF (1 VRT)</li>
+			<li>17500 x 12000 Pixel</li>
+			<li>Resampling-Methode: Bilinear</li>			
+			<li>Oversampling-Faktor: 4.0</li>
+		</ul>
+	</div></section>
+
+	<section class="slide" id="basisplan_bench"><div>
+		<img style="margin-top: -80px;" src="pictures/basisplan_bench.png" alt="">
+	</div></section>
+
+	<section class="slide" id="basisplan_bench_resp"><div>
+		<img style="margin-top: -80px;" src="pictures/basisplan_bench_resp.png" alt="">
+	</div></section>
+
+	<section class="slide cover" id="orthofoto"><div>
+		<h2 style="color:#FFF;">Orthofoto</h2>
+		<img src="pictures/orthofoto.jpg" alt="">
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Orthofoto</h2>
+		<ul>
+			<li>circa 680 GeoTIFF (3 VRT)</li>
+			<li>12.5 cm (8000 x 8000 Pixel)</li>
+			<li>3 einzelne GeoTIFF (5 m)</li>
+			<li>Resampling-Methode: Nearest Neighbour</li>			
+		</ul>
+	</div></section>
+
+	<section class="slide" id="orthofoto_bench"><div>
+		<img style="margin-top: -80px;" src="pictures/orthofoto_bench.png" alt="">
+	</div></section>
+
+	<section class="slide" id="orthofoto_bench_resp"><div>
+		<img style="margin-top: -80px;" src="pictures/orthofoto_bench_resp.png" alt="">
+	</div></section>
+
+	<section class="slide cover" id="kombination"><div>
+		<h2 style="color:#FFF;">Kombination</h2>
+		<img src="pictures/kombination.jpg" alt="">
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Kombination</h2>
+		<ul>
+			<li>Orthofoto und Basisplan/Plan für das Grundbuch</li>
+			<li>Plan für das Grundbuch &lt; 1:6'000</li>
+			<li>Basisplan &lt; 1:50'000</li>
+			<li>Resampling-Methode (Orthofoto): Nearest Neighbour</li>			
+		</ul>
+	</div></section>
+
+	<section class="slide" id="kombination_bench"><div>
+		<img style="margin-top: -80px;" src="pictures/kombination_bench.png" alt="">
+	</div></section>
+
+	<section class="slide" id="kombination_bench_resp"><div>
+		<img style="margin-top: -80px;" src="pictures/kombination_bench_resp.png" alt="">
+	</div></section>
+
+
+	<section class="slide"><div>
+		<h2>Fragen</h2>
+		<ul>
+			<li>Warum dieser massive Einbruch beim Kaskadieren?</li>
+			<ul>
+				<li>Software-RAID?</li>
+				<li>Apache/FCGI-Einstellungen?</li>
+			</ul>
+			<li>Reproduzierbar in SO!GIS-Infrastruktur?</li>
+			<ul>
+				<li>Rasterdaten via UMN Mapserver</li>
+				<li>AV-WMS via QGIS server</li>				
+				<li>Besserer Speicherlösung (keine Software-RAID)</li>
+			</ul>
+			
+		</ul>
+	</div></section>	
+	
+	<section class="slide"><div>
+		<h2>Fazit</h2>
+		<ul>
+			<li>Daten möglichst &laquo;direkt&raquo; in QGIS-Projekt einbinden:</li>
+			<ul>
+				<li>Sehr unschön für Vektorlayergruppen, dh. einzelne Layer sind sichtbar in Webclient.</li>
+				<li>Weniger tragisch für Rasterdaten.</li>
+			</ul>
+			<li>&rarr; Einführen von &laquo;intelligenten&raquo; Gruppen:</li>
+			<ul>
+				<li>Untergruppen und Layer nicht sichtbar in QGIS-Webclient.</li>
+				<li>Weitere Gruppeneigenschaften, z.B. eigene massstabsabhängige Sichtbarkeit etc.</li>
+			</ul>
+		</ul>
+	</div></section>
+
+	<section class="slide"><div>
+		<h2>Links</h2>
+		<ul>
+			<li><a href="http://wiki.osgeo.org/wiki/FOSS4G_Benchmark">FOSS4G Benchmark Wiki</a></li>
+			<li><a href="http://sourcepole.ch/assets/2013/6/17/fossgis_2013_performanceoptimierte_wms_dienste.pdf">Präsentation/Resultate FOSSGIS 2013</a></li>
+		</ul>
+	</div></section>
+	
+	
+	<p class="badge"><a href="https://github.com/shower/shower">Fork me on Github</a></p>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="shower/shower.min.js"></script>
+	<!-- Copyright © 2013 Yours Truly, Famous Inc. -->
+	<!-- Photos by John Carey, fiftyfootshadows.net -->
+</body>
+</html>
