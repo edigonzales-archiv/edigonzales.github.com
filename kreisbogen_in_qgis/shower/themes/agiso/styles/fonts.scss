@@ -1,0 +1,36 @@
+// Ribbon theme for Shower HTML presentation engine: github.com/shower/shower
+// Copyright © 2010–2013 Vadim Makeev, pepelsbey.net
+// Licensed under MIT license: github.com/shower/shower/wiki/MIT-License
+
+// PT Sans
+@font-face {
+	font-family:'Frutiger LT Com 55 Roman';
+	src:url(../fonts/FrutigerLTCom-Roman.woff) format('woff');
+	}
+@font-face {
+	font-weight:bold;
+	font-family:'Frutiger LT Com 75 Black';
+	src:url(../fonts/FrutigerLTCom-Black.woff) format('woff');
+	}
+@font-face {
+	font-style:italic;
+	font-family:'Frutiger LT Com 56 Italic';
+	src:url(../fonts/FrutigerLTCom-Italic.woff) format('woff');
+	}
+@font-face {
+	font-style:italic;
+	font-weight:bold;
+	font-family:'Frutiger LT Com 76 Black Italic';
+	src:url(../fonts/FrutigerLTCom-BlackItalic.woff) format('woff');
+	}
+@font-face {
+	font-family:'Frutiger LT Com 75 Black';
+	font-weight:bold;
+	src:url(../fonts/FrutigerLTCom-Black.woff) format('woff');
+	}
+
+// PT Mono
+@font-face {
+	font-family:'PT Mono';
+	src:url(../fonts/PTMono.woff) format('woff');
+	}

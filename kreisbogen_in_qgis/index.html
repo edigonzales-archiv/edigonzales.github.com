@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Shower Presentation Engine</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<link rel="stylesheet" href="shower/themes/agiso/styles/screen.css">
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>Kreisbogen in QGIS</h1>
+		<p>Stefan Ziegler&mdash;Amt für Geoinformation Kanton Solothurn</p>
+	</header>
+	<section class="slide cover" id="Cover"><div>
+		<h2>Kreisbogen in QGIS</h2>
+		<p>Stefan Ziegler&mdash;Amt für Geoinformation Kanton Solothurn</p>
+		<img src="pictures/cover.png" alt="">
+		<!--
+			To apply styles to the certain slides
+			set slide ID to get needed elements
+			-->
+		<style>
+			#Cover h2 {
+				margin:30px 0 0;
+				color:#000;
+				text-align:center;
+				font-size:70px;
+				}
+			#Cover p {
+				margin:10px 0 0;
+				text-align:center;
+				color:#000;
+				font-style:italic;
+				font-size:20px;
+				}
+				#Cover p a {
+					color:#FFF;
+				}
+		</style>
+	</div></section>
+	
+	<section class="slide cover" id="kreisbogen_ganz"><div>
+		<h2 style="color:#000;"></h2>
+		<img src="pictures/kreisbogen_ganz.png" alt="">
+	</div></section>
+    
+	<section class="slide cover" id="kreisbogen_segmentiert_viertel"><div>
+		<h2 style="color:#000;"></h2>
+		<img src="pictures/kreisbogen_segmentiert_viertel.png" alt="">
+	</div></section>    
+    
+	<section class="slide cover" id="kreisbogen_bogen_viertel"><div>
+		<h2 style="color:#000;"></h2>
+		<img src="pictures/kreisbogen_bogen_viertel.png" alt="">
+	</div></section>    
+    
+    
+	<section class="slide"><div>
+		<h2>Um was geht es?</h2>
+		<ul>
+			<li>Auslöser</li>
+			<li>Umsetzung</li>
+			<li>Demo</li>
+			<li>Ausblick / Blick über Tellerrand</li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Auslöser</h2>
+		<ul>
+			<li>Amt für Geoinformation verifiziert die amtliche Vermessung (Katastervermessung).</li>
+			<li>Zugelassen sind der Kreisbogen und die Gerade.</li>
+			<li>Exotisches Austauschformat: INTERLIS</li>			
+			<li>Eingesetzte Werkzeuge: PostgreSQL/Postgis und QGIS</li>
+		</ul>
+	</div></section>
+    
+	<section class="slide"><div>
+		<h2>Auslöser</h2>
+		<ul>
+			<li>Kreisbogen werden beim Datenimport segmentiert.</li>
+		</ul>
+		<code>void interpolateArc(Coordinate ptStart, Coordinate ptArc, Coordinate ptEnd, double maxOverlaps) {...} </code>		
+	</div></section>
+    
+	<section class="slide"><div>
+		<h2>Auslöser</h2>
+		<ul>
+			<li>Information über Kreisbogen geht verloren (<i>Radius</i>).</li>
+			<li>Information über Geometrieelement geht verloren (<i>Geradenstück oder Kreisbogen?</i>)</li>
+			<li>Datenerfassung / Digitalisieren erschwert</li>
+			<li>Enorme Anzahl an Vertexpunkten (<i>Beispiel: 128 vs. 5</i>)</li>
+			<li>Akzeptanz (?)</li>
+			<li>Entwicklungsmöglichkeiten (?)</li>
+		</ul>
+	</div></section>
+    
+    
+    
+	<section class="slide"><div>
+		<h2>Umsetzung - Umfang</h2>
+		<ul>
+			<li>Anzeigen und Editieren von PostgreSQL/Postgis-Layer</li>
+			<li>Editierwerkzeuge (<i>3 Punkte / Radius</i>)</li>
+			<li>Abfragewerkzeuge (<i>Fläche, Umfang, Segment)</i></li>
+			<li><b>Achtung:</b> Überall, wo Kreisbogen <i>nicht</i> unterstützt werden, wird automatisch segmentiert.</li>
+			<ul>
+				<li>Geometrieoperationen (Intersection, Buffer etc.)</li>
+				<li>Export in ein Shapefile</li>
+				<li>GEOS :-(</li>
+			</ul>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Umsetzung - QGIS</h2>
+		<ul>
+			<li>Komplettes Redesign der Geometrieklasse</li>
+			<li>Früher: eine Geomtrieklasse <code>QgsGeometry</code></li>
+			<li>Heute für jeden Geometrietyp eine eigene Klasse: <code>QgsCircularString</code>, <code>QgsPolygon</code> etc.</li>
+			<li>Altes Design war nicht schlecht aber teilweise sehr wartungs- und entwicklungs<i>un</i>freundlich.</li>
+		</ul>
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2>Umsetzung - QGIS</h2>
+		<ul>
+			<li>Unabhängig von Geometrieengine (GEOS)</li>
+			<li>M- und Z-Werte bleiben neu <i>immer</i> erhalten.</li>
+			<li>Splines und andere Geometrietypen sind möglich.</li>
+		</ul>
+	</div></section>
+	
+	
+	<section class="slide"><div>
+		<h2>Demo</h2>
+    </div></section>
+    
+	<section class="slide"><div>
+		<h2>Ausblick</h2>
+		<ul>
+			<li>Vieles funktioniert schon.</li>
+			<li>QGIS 2.10</li>
+			<li><a href="https://github.com/mhugent/Quantum-GIS/tree/geometry_mmsql
+">https://github.com/mhugent/Quantum-GIS/tree/geometry_mmsql</a></li>
+			<li><a href="https://github.com/mhugent/QGIS-Enhancement-Proposals/blob/3c5bdbaa1fd1bafc1fd5068126c12784cc1b4242/QEP-8-geometry_redesign.rst
+">QGIS Enhancement 8</a></li>
+		</ul>
+	</div></section>
+    
+	<section class="slide"><div>
+		<h2>Ausblick</h2>
+		<ul>
+			<li>Ideen:</li>
+			<ul>
+				<li>Weitere Editierfunktionen, z.B. Bogen tangential an Gerade</li>
+				<li>Bessere Geometrieengine (mit Kreisbogenunterstützung)</li>
+				<li>Kreisbogenunterstützung für weitere Provider (v.a. GeoPackage, DXF)</li>
+			</ul>
+		</ul>
+	</div></section>
+    
+    
+	<section class="slide"><div>
+		<h2>Blick über den Tellerrand</h2>
+		<ul>
+			<li>GDAL/OGR: 
+			<ul>
+				<li><a href="https://trac.osgeo.org/gdal/wiki/rfc49_curve_geometries
+">RFC 49</a></li>
+				<li>Postgis / GML Treiber</li>
+			</ul>
+			<li>GeoTools / GeoServer:
+			<ul>
+				<li><a href="http://www.geo-solutions.it/blog/getting-curvey-with-oracle-spatial-and-geoserver/
+">Kreisbogenunterstützung für Oracle Spatial</a></li>
+			</ul>
+			<li>ili2pg (INTERLIS):
+			<ul>
+				<li>Flächenbildung (Polygonieren) mit Kreisbogenunterstützung und Overlaps-Bereinigung (Self-Intersections)</li>
+			</ul>
+			
+		</ul>
+	</div></section>
+    
+    
+ 	
+	<p class="badge"><a href="https://github.com/shower/shower">Fork me on Github</a></p>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="shower/shower.min.js"></script>
+	<!-- Copyright © 2013 Yours Truly, Famous Inc. -->
+	<!-- Photos by John Carey, fiftyfootshadows.net -->
+</body>
+</html>
